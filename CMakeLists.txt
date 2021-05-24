@@ -15,7 +15,7 @@ add_executable(main src/main.cpp src/helper.m)
 else()
 add_executable(main src/main.cpp)
 endif()
-target_include_directories(main PRIVATE ${fltk_SOURCE_DIR} ${fltk_BINARY_DIR})
+target_include_directories(main PRIVATE include ${fltk_SOURCE_DIR} ${fltk_BINARY_DIR})
 target_compile_features(main PRIVATE cxx_std_17)
 
 if(UNIX AND NOT APPLE)
