@@ -10,8 +10,11 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(FLTK)
-
+if(APPLE)
+add_executable(main src/main.cpp src/mac_helper.m)
+else()
 add_executable(main src/main.cpp)
+endif()
 target_include_directories(main PRIVATE ${fltk_SOURCE_DIR} ${fltk_BINARY_DIR})
 target_compile_features(main PRIVATE cxx_std_17)
 
@@ -24,7 +27,7 @@ elseif(WIN32)
   set_target_properties(main PROPERTIES VS_CPPWINRT true)
   target_link_libraries(main PRIVATE fltk webview WebView2Loader)
 elseif(APPLE)
-  target_link_libraries(main PRIVATE fltk objc -framework WebKit)
+  target_link_libraries(main PRIVATE fltk "-framework WebKit" "-framework Cocoa")
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()

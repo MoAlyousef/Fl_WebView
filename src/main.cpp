@@ -1,25 +1,27 @@
 #define FL_INTERNALS
+#include "webview.h"
+#include <FL/Enumerations.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/platform.H>
-#include <FL/Enumerations.H>
-#include "webview.h"
 
 #if defined(__linux__)
 #include <X11/Xlib.h>
-#include <gtk/gtk.h>
 #include <gdk/gdkx.h>
+#include <gtk/gtk.h>
 
-class Fl_WebView: public Fl_Window {
+class Fl_WebView : public Fl_Window {
   webview_t wv = NULL;
   long gdk_win_xid = 0;
-  public:
-  Fl_WebView(int x, int y, int w, int h, const char *title = 0): Fl_Window(x, y, w, h, title) {
+
+public:
+  Fl_WebView(int x, int y, int w, int h, const char *title = 0)
+      : Fl_Window(x, y, w, h, title) {
     wv = webview_create(false, NULL);
     auto wv_gtk_win = webview_get_window(wv);
     auto gdk_win = gtk_widget_get_window(GTK_WIDGET(wv_gtk_win));
     gdk_win_xid = GDK_WINDOW_XID(gdk_win);
-    Fl::add_idle(+[] (void *) { gtk_main_iteration(); });
+    Fl::add_idle(+[](void *) { gtk_main_iteration(); });
   }
   virtual void draw() override {
     auto wv_win_xid = fl_xid(this);
@@ -29,51 +31,41 @@ class Fl_WebView: public Fl_Window {
     XFlush(fl_display);
     webview_set_size(wv, w(), h(), 0);
   }
-  void navigate(const char *addr) {
-    webview_navigate(wv, addr);
-  }
+  void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 
 #elif defined(__APPLE__)
 #include <CoreGraphics/CoreGraphics.h>
 #include <objc/objc-runtime.h>
 
-class Fl_WebView: public Fl_Window {
+extern "C" void reparent(void *, void *);
+
+class Fl_WebView : public Fl_Window {
   webview_t wv = NULL;
-  public:
-  Fl_WebView(int x, int y, int w, int h, const char *title = 0): Fl_Window(x, y, w, h, title) {
+public:
+  Fl_WebView(int x, int y, int w, int h, const char *title = 0)
+      : Fl_Window(x, y, w, h, title) {
     wv = webview_create(false, NULL);
-    auto this_view = objc_msgSend(fl_xid(this), "contentView");
-    auto wv_win = webview_get_window(wv);
-    auto wv_view = objc_msgSend(wv_win, "contentView");
-    objc_msgSend(wv_view, "removeFromSuperview");
-    obc_msgSend(this_view, "addSubview:positioned:relativeTo:", wv_view, 1, 0);
-    objc_msgSend(wv_view, "acceptsFirstResponder");
-    objc_msgSend(wv_win, "close");
+    reparent((void *)webview_get_window(wv), (void *)fl_xid(this));
+    webview_set_size(wv, w, h, 0);
   }
-  virtual void draw() override {
-    webview_set_size(wv, w(), h(), 0);
-  }
-  void navigate(const char *addr) {
-    webview_navigate(wv, addr);
-  }
+  virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
+  void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 
 #elif defined(_WIN32)
 #include <windows.h>
 
-class Fl_WebView: public Fl_Window {
+class Fl_WebView : public Fl_Window {
   webview_t wv = NULL;
-  public:
-  Fl_WebView(int x, int y, int w, int h, const char *title = 0): Fl_Window(x, y, w, h, title) {
+
+public:
+  Fl_WebView(int x, int y, int w, int h, const char *title = 0)
+      : Fl_Window(x, y, w, h, title) {
     wv = webview_create(false, (HWND *)fl_xid(this));
   }
-  virtual void draw() override {
-    webview_set_size(wv, w(), h(), 0);
-  }
-  void navigate(const char *addr) {
-    webview_navigate(wv, addr);
-  }
+  virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
+  void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 #else
 #error "Unsupported platform"
@@ -86,6 +78,6 @@ int main(int argc, char **argv) {
   main_win->show();
 
   wv_win->navigate("https://google.com");
-  
+
   return Fl::run();
 }
