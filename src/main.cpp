@@ -1,9 +1,11 @@
 #define FL_INTERNALS
+
 #include "webview.h"
 #include <FL/Enumerations.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/platform.H>
+#include <stdexcept>
 
 #if defined(__linux__)
 #include <X11/Xlib.h>
@@ -21,14 +23,17 @@ public:
     auto wv_gtk_win = webview_get_window(wv);
     auto gdk_win = gtk_widget_get_window(GTK_WIDGET(wv_gtk_win));
     gdk_win_xid = GDK_WINDOW_XID(gdk_win);
-    Fl::add_idle(+[](void *) { gtk_main_iteration(); });
+    Fl_Window::end();
   }
   void init() {
+    if (!shown())
+      throw std::runtime_error("The window needs to be shown.");
     auto wv_win_xid = fl_xid(this);
     auto main_win_xid = fl_xid(this->top_window());
     XMapWindow(fl_display, gdk_win_xid);
     XReparentWindow(fl_display, gdk_win_xid, main_win_xid, x(), y());
     XFlush(fl_display);
+    Fl::add_idle(+[](void *) { gtk_main_iteration(); });
   }
   virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
@@ -47,8 +52,11 @@ public:
   Fl_WebView(int x, int y, int w, int h, const char *title = 0)
       : Fl_Window(x, y, w, h, title) {
     wv = webview_create(false, NULL);
+    Fl_Window::end();
   }
   void init() {
+    if (!shown())
+      throw std::runtime_error("The window needs to be shown.");
     webview_set_size(wv, w(), h(), 0);
     helper_reparent((void *)webview_get_window(wv), (void *)fl_xid(this));
     Fl::add_idle(webview_run, wv);
@@ -66,9 +74,13 @@ class Fl_WebView : public Fl_Window {
 public:
   Fl_WebView(int x, int y, int w, int h, const char *title = 0)
       : Fl_Window(x, y, w, h, title) {
+    Fl_Window::end();
+  }
+  void init() {
+    if (!shown())
+      throw std::runtime_error("The window needs to be shown.");
     wv = webview_create(false, (HWND *)fl_xid(this));
   }
-  void init() {}
   virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
@@ -82,8 +94,9 @@ int main(int argc, char **argv) {
   main_win->end();
   main_win->resizable(main_win);
   main_win->show();
-  main_win->callback(+[](Fl_Widget *, void *data){
-    if (Fl::event() == FL_CLOSE) std::exit(0);
+  main_win->callback(+[](Fl_Widget *, void *data) {
+    if (Fl::event() == FL_CLOSE)
+      std::exit(0);
   });
 
   wv_win->init();
