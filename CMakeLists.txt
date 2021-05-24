@@ -11,7 +11,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(FLTK)
 if(APPLE)
-add_executable(main src/main.cpp src/mac_helper.m)
+add_executable(main src/main.cpp src/helper.m)
 else()
 add_executable(main src/main.cpp)
 endif()
