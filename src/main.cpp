@@ -40,8 +40,6 @@ public:
 };
 
 #elif defined(__APPLE__)
-#include <CoreGraphics/CoreGraphics.h>
-#include <objc/objc-runtime.h>
 
 extern "C" void helper_reparent(void *child, void *parent);
 
