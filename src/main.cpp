@@ -30,12 +30,14 @@ public:
       throw std::runtime_error("The window needs to be shown.");
     auto wv_win_xid = fl_xid(this);
     auto main_win_xid = fl_xid(this->top_window());
-    XMapWindow(fl_display, gdk_win_xid);
     XReparentWindow(fl_display, gdk_win_xid, main_win_xid, x(), y());
+    XMapWindow(fl_display, gdk_win_xid);
     XFlush(fl_display);
     Fl::add_idle(+[](void *) { gtk_main_iteration(); });
   }
-  virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
+  virtual void draw() override { 
+    webview_set_size(wv, w(), h(), 0);
+   }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 
