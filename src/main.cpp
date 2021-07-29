@@ -49,14 +49,14 @@ class Fl_WebView : public Fl_Window {
 public:
   Fl_WebView(int x, int y, int w, int h, const char *title = 0)
       : Fl_Window(x, y, w, h, title) {
-    wv = webview_create(false, NULL);
     Fl_Window::end();
   }
   void init() {
     if (!shown())
       throw std::runtime_error("The window needs to be shown.");
-    webview_set_size(wv, w(), h(), 0);
-    make_delegate((void *)webview_get_window(wv), (void *)fl_xid(this));
+    auto handle = fl_xid(this);
+    wv = webview_create(false, (void *)handle);
+    make_delegate((void *)webview_get_window(wv), (void *)handle);
     Fl::add_idle(webview_run, wv);
   }
   virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
@@ -77,7 +77,7 @@ public:
   void init() {
     if (!shown())
       throw std::runtime_error("The window needs to be shown.");
-    wv = webview_create(false, (HWND *)fl_xid(this));
+    wv = webview_create(false, (void *)fl_xid(this));
   }
   virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
