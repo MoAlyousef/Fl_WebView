@@ -29,9 +29,7 @@ public:
     if (!shown())
       throw std::runtime_error("The window needs to be shown.");
     auto wv_win_xid = fl_xid(this);
-    auto main_win_xid = fl_xid(this->top_window());
-    XReparentWindow(fl_display, gdk_win_xid, main_win_xid, x(), y());
-    XMapWindow(fl_display, gdk_win_xid);
+    XReparentWindow(fl_display, gdk_win_xid, wv_win_xid, x(), y());
     XFlush(fl_display);
     Fl::add_idle(+[](void *) { gtk_main_iteration(); });
   }
@@ -43,7 +41,7 @@ public:
 
 #elif defined(__APPLE__)
 
-extern "C" void helper_reparent(void *child, void *parent);
+extern "C" void make_delegate(void *child, void *parent);
 
 class Fl_WebView : public Fl_Window {
   webview_t wv = NULL;
@@ -58,7 +56,7 @@ public:
     if (!shown())
       throw std::runtime_error("The window needs to be shown.");
     webview_set_size(wv, w(), h(), 0);
-    helper_reparent((void *)webview_get_window(wv), (void *)fl_xid(this));
+    make_delegate((void *)webview_get_window(wv), (void *)fl_xid(this));
     Fl::add_idle(webview_run, wv);
   }
   virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
