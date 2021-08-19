@@ -11,20 +11,17 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
 #include <gdk/gdkx.h>
-#include <gtk/gtk.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
-int check(void *) {
-  return Fl::check();
-}
+int check(void *) { return Fl::check(); }
 
 void x_init(Display *disp, Window child, Window parent) {
   XMoveWindow(disp, child, 0, 0);
 
   XReparentWindow(disp, child, parent, 0, 0);
 
-  XFixesChangeSaveSet(disp, child, SetModeInsert, SaveSetRoot,
-                      SaveSetUnmap);
+  XFixesChangeSaveSet(disp, child, SetModeInsert, SaveSetRoot, SaveSetUnmap);
 
   XEvent client_event;
   XWindowAttributes childAttributes;
@@ -79,7 +76,7 @@ public:
       usleep(3e5);
     }
     webview_set_size(wv, w(), h(), 0);
-   }
+  }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 
