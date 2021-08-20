@@ -7,7 +7,7 @@
 #include <FL/platform.H>
 #include <stdexcept>
 
-#if defined(__linux__)
+#if !(defined(__APPLE__) || defined(_WIN32))
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
 #include <gdk/gdkx.h>
@@ -75,7 +75,7 @@ public:
       x_init(fl_display, gdk_win_xid, fl_xid(this));
       usleep(3e5);
     }
-    webview_set_size(wv, w(), h(), 0);
+    if (wv) webview_set_size(wv, w(), h(), 0);
   }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
@@ -100,7 +100,7 @@ public:
     make_delegate((void *)webview_get_window(wv), (void *)handle);
     Fl::add_idle(webview_run, wv);
   }
-  virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
+  virtual void draw() override { if (wv) webview_set_size(wv, w(), h(), 0); }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 
@@ -118,9 +118,10 @@ public:
   void init() {
     if (!shown())
       throw std::runtime_error("The window needs to be shown.");
-    wv = webview_create(false, (void *)fl_xid(this));
+    auto temp = fl_xid(this);
+    wv = webview_create(false, &temp);
   }
-  virtual void draw() override { webview_set_size(wv, w(), h(), 0); }
+  virtual void draw() override { if (wv) webview_set_size(wv, w(), h(), 0); }
   void navigate(const char *addr) { webview_navigate(wv, addr); }
 };
 #else
@@ -143,3 +144,4 @@ int main(int argc, char **argv) {
 
   return Fl::run();
 }
+
