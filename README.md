@@ -33,4 +33,6 @@ int main(int argc, char** argv) {
 }
 ```
 
+Building the repo will generate a fltk_webview library which can then be used in your application. Otherwise, you can just copy the necessary files into your project.
+
 Bug fixes and contributions appreciated!
