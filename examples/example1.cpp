@@ -1,17 +1,3 @@
-# Fl_WebView
-
-A webview integration into FLTK proof of concept.
-
-## Building
-```
-$ git clone https://github.com/moalyousef/fltk-webview
-$ cd fltk-webview
-$ cmake -B bin && cmake --build bin --parallel
-```
-This should build fltk along with this lib and the example in the examples directory.
-
-## Usage
-```cpp
 #include "Fl_WebView.H"
 #include <FL/Enumerations.H>
 #include <FL/Fl.H>
@@ -31,6 +17,3 @@ int main(int argc, char** argv) {
 
     return Fl::run();
 }
-```
-
-Bug fixes and contributions appreciated!
