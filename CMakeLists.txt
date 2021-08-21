@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(FLTK)
 option(BUILD_EXAMPLE "Builds the example" ON)
 
 if(APPLE)
-add_library(fltk_webview src/Fl_WebView.cxx src/helper.m)
+add_library(fltk_webview src/Fl_WebView.cxx src/cocoa_helper.m)
 else()
 add_library(fltk_webview src/Fl_WebView.cxx)
 endif()

@@ -2,8 +2,6 @@
 #include <FL/Enumerations.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
-#include <cstdlib>
-
 
 int main(int argc, char** argv) {
     auto main_win = new Fl_Double_Window(800, 600);

@@ -10,6 +10,14 @@
 
 @end
 
+@implementation NSView (FLView)
+
+-(BOOL)reset_aux_bitmap {
+  return YES;
+}
+
+@end
+
 void add_nsmenu(bool val) {
     if (val) {
       id menubar = [[NSMenu alloc] initWithTitle:@""];
@@ -53,4 +61,10 @@ void make_delegate(NSWindow *child, NSWindow *parent) {
   [child setIgnoresMouseEvents:NO];
   [child makeKeyAndOrderFront:nil];
   add_nsmenu(true);
+}
+
+void my_close_win(void *win) {
+  NSView *view = [(NSWindow *)win contentView];
+  [view removeFromSuperview];
+  [(NSWindow *)win close];
 }
